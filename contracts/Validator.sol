@@ -2,30 +2,33 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "hardhat/console.sol";
 
 contract Validator {
-    bytes public constant ECDSA_PREFIX_MESSAGE = "\x19Ethereum Signed Message:\n32";
-
-    mapping(bytes32 => bool) private isNonceUsed;
-    mapping(address => bool) private isValidator;
+    mapping(bytes32 => bool) private _isNonceUsed;
+    mapping(address => bool) private _isValidator;
 
     event ValidatorAdded(address validator);
     event ValidatorRemoved(address validator);
 
-    function _setValidator(address validator, bool _isValidator) internal {
-        if (_isValidator) {
-            isValidator[validator] = true;
+    function _setValidator(address validator, bool newValidatorValue) internal {
+        if (newValidatorValue) {
+            _isValidator[validator] = true;
             emit ValidatorAdded(validator);
         } else {
-            isValidator[validator] = false;
+            _isValidator[validator] = false;
             emit ValidatorRemoved(validator);
         }
     }
 
-    function _isSignedByValidator(bytes memory _message, bytes memory _signature) private view returns (bool)
+    function isValidator(address validator) public view returns (bool) {
+        return _isValidator[validator];
+    }
+
+    function _isSignedByValidator(bytes32 _messageHash, bytes memory _signature) internal view returns (bool)
     {
-        bytes32 _hash = keccak256(abi.encodePacked(ECDSA_PREFIX_MESSAGE, _message));
-        return isValidator[ECDSA.recover(_hash, _signature)];
+        bytes32 _hash = ECDSA.toEthSignedMessageHash(_messageHash);
+        return _isValidator[ECDSA.recover(_hash, _signature)];
     }
 
     /** 
@@ -37,12 +40,15 @@ contract Validator {
         bytes memory _message,
         bytes32 _nonce,
         bytes memory _signature
-    ) public {
+    ) public returns (bool) {
         // signature is not valid if nonce has been used before
-        require(!isNonceUsed[_nonce], "Validator: Nonce already used");
-        isNonceUsed[_nonce] = true;
+        require(!_isNonceUsed[_nonce], "Validator: Nonce already used");
+        _isNonceUsed[_nonce] = true;
         
-        bytes memory nonceMessage  = abi.encodePacked(_message, _nonce);
-        require(_isSignedByValidator(nonceMessage, _signature), "Validator: Invalid signature");
+        bytes memory nonceMessage = abi.encodePacked(_message, _nonce);
+        bytes32 messageHash = keccak256(nonceMessage);
+
+        require(_isSignedByValidator(messageHash, _signature), "Validator: Invalid signature");
+        return true;
     }
 }
