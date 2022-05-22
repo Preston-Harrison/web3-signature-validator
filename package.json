@@ -1,20 +1,21 @@
 {
   "name": "hardhat-project",
+  "license": "MIT",
   "scripts": {
     "compile": "npx hardhat compile"
   },
   "dependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.6",
-    "@openzeppelin/contracts": "^4.6.0",
-    "dotenv": "^16.0.1",
-    "hardhat": "^2.9.6"
+    "@openzeppelin/contracts": "^4.6.0"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@typechain/ethers-v5": "^10.0.0",
     "@typechain/hardhat": "^6.0.0",
     "@types/chai": "^4.3.1",
     "@types/mocha": "^9.1.1",
     "chai": "^4.3.6",
+    "dotenv": "^16.0.1",
+    "hardhat": "^2.9.6",
     "mocha": "^10.0.0",
     "ts-node": "^10.8.0",
     "typechain": "^8.0.0",
