@@ -5,7 +5,6 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const SAMPLE_ADDRESS = "0xF1dF824419879Bb8a7E758173523F88EfB7Af193";
 const SAMPLE_UINT = 1208394723;
-const SAMPLE_NONCE = ethers.utils.formatBytes32String("sample bytes32 nonce");
 
 describe("Validator", () => {
   let ValidatorTest: ValidatorTest;
@@ -76,6 +75,37 @@ describe("Validator", () => {
         assert.fail("Validator should have thrown an error");
       } catch (e: any) {
         expect(e.message).to.include("Validator: Nonce already used");
+      }
+    })
+  })
+
+  describe("validation process", () => {
+    it("should correctly validate multiple items", async () => {
+      expect(await ValidatorTest.isValidator(validator.address)).to.be.true;
+      const message = ethers.utils.solidityPack(["uint256", "address"], [SAMPLE_UINT, SAMPLE_ADDRESS]);
+      const nonce = ethers.utils.randomBytes(32);
+
+      const nonceMessage = ethers.utils.solidityPack(["bytes", "bytes32"], [message, nonce]);
+      const nonceMessageBytes = ethers.utils.arrayify(ethers.utils.keccak256(nonceMessage));
+      const signature = await validator.signMessage(nonceMessageBytes);
+
+      await ValidatorTest.tryToValidate(SAMPLE_UINT, SAMPLE_ADDRESS, nonce, signature);
+      // If it gets to here, it was successfully validated
+    })
+    it("should correctly invalidate multiple items if the signer is not a validator", async () => {
+      expect(await ValidatorTest.isValidator(account1.address)).to.be.false;
+      const message = ethers.utils.solidityPack(["uint256", "address"], [SAMPLE_UINT, SAMPLE_ADDRESS]);
+      const nonce = ethers.utils.randomBytes(32);
+
+      const nonceMessage = ethers.utils.solidityPack(["bytes", "bytes32"], [message, nonce]);
+      const nonceMessageBytes = ethers.utils.arrayify(ethers.utils.keccak256(nonceMessage));
+      const signature = await account1.signMessage(nonceMessageBytes);
+
+      try {
+        await ValidatorTest.tryToValidate(SAMPLE_UINT, SAMPLE_ADDRESS, nonce, signature);
+        assert.fail("Validator should have thrown an error");
+      } catch (e: any) {
+        expect(e.message).to.include("Validator: Invalid signature");
       }
     })
   })
