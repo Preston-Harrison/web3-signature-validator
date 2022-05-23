@@ -1,9 +1,11 @@
 {
   "name": "sol-sig-validator",
   "license": "MIT",
+  "main": "dist/index.js",
   "scripts": {
     "compile": "npx hardhat compile",
-    "test": "npx hardhat test"
+    "test": "npx hardhat test",
+    "build": "npx tsc ./src/index.ts --outDir ./dist --declaration"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
