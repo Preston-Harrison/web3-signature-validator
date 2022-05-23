@@ -1,7 +1,11 @@
 {
   "name": "sol-sig-validator",
+  "author": {
+    "name": "Preston Harrison"
+  },
   "license": "MIT",
   "main": "dist/index.js",
+  "version": "0.0.1",
   "scripts": {
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
