@@ -3,7 +3,7 @@ A library for validating on chain data passed in as parameters.
 
 Sometimes you need off chain data to be used in your smart contracts. This library allows users to submit the relevant data to your smart contract with the safety that any data they submit will have had to been validated by a authorized signer.
 
-## Contract example
+## Contract Example
 ```
 contract NeedsAValidator is Validator {
     constructor() {
@@ -22,9 +22,9 @@ contract NeedsAValidator is Validator {
 }
 ```
 
-## Off chain example
+## Off Chain Example
 ```
-import signParams from 'sol-sig-validator';
+import signParams from 'web3-signature-validator';
 
 async function main() {
     // signer should be set to a validator on your contract
