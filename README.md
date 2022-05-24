@@ -1,4 +1,4 @@
-# sol-sig-validator
+# web3-signature-validator
 A library for validating on chain data passed in as parameters.
 
 Sometimes you need off chain data to be used in your smart contracts. This library allows users to submit the relevant data to your smart contract with the safety that any data they submit will have had to been validated by a authorized signer.
