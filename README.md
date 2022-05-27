@@ -3,8 +3,16 @@ A library for validating on chain data passed in as parameters.
 
 Sometimes you need off chain data to be used in your smart contracts. This library allows users to submit the relevant data to your smart contract with the safety that any data they submit will have had to been validated by a authorized signer.
 
+## Installation
+Install the package with either of the following:
+```
+$ npm install web3-signature-validator
+$ yarn add web3-signature-validator
+```
+
 ## Contract Example
 ```
+import "web3-signature-validator/contracts/Validator.sol";
 contract NeedsAValidator is Validator {
     constructor() {
         _setValidator(msg.sender, true);
