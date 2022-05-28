@@ -10,7 +10,8 @@
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
     "build": "npx tsc ./src/index.ts --outDir ./dist --declaration",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "publish": "npm run build && npm publish"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
