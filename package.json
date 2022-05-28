@@ -5,7 +5,7 @@
   },
   "license": "MIT",
   "main": "dist/index.js",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "scripts": {
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
