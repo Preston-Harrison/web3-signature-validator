@@ -1,6 +1,6 @@
 import { expect, assert } from "chai";
 import { ethers } from "hardhat";
-import { ValidatorTest } from "../typechain-types";
+import { ValidatorTest } from "../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const SAMPLE_ADDRESS = "0xF1dF824419879Bb8a7E758173523F88EfB7Af193";
@@ -45,7 +45,7 @@ describe("Validator", () => {
       const nonceMessage = ethers.utils.solidityPack(["bytes", "bytes32"], [message, nonce]);
       const nonceMessageBytes = ethers.utils.arrayify(ethers.utils.keccak256(nonceMessage));
       const signature = await validator.signMessage(nonceMessageBytes);
-      await ValidatorTest.validateSignature(message, nonce, signature);
+      await ValidatorTest.validateSignatureWithNonce(message, nonce, signature);
       // if the above does not throw, validation was successful
     })
     it("should correctly invalidate a signature with a nonce", async () => {
@@ -56,7 +56,7 @@ describe("Validator", () => {
       const nonceMessageBytes = ethers.utils.arrayify(ethers.utils.keccak256(nonceMessage));
       const signature = await account1.signMessage(nonceMessageBytes);
       try {
-        await ValidatorTest.validateSignature(message, nonce, signature);
+        await ValidatorTest.validateSignatureWithNonce(message, nonce, signature);
         assert.fail("Validator should have thrown an error");
       } catch (e: any) {
         expect(e.message).to.include("Validator: Invalid signature");
@@ -69,9 +69,9 @@ describe("Validator", () => {
       const nonceMessage = ethers.utils.solidityPack(["bytes", "bytes32"], [message, nonce]);
       const nonceMessageBytes = ethers.utils.arrayify(ethers.utils.keccak256(nonceMessage));
       const signature = await validator.signMessage(nonceMessageBytes);
-      await ValidatorTest.validateSignature(message, nonce, signature);
+      await ValidatorTest.validateSignatureWithNonce(message, nonce, signature);
       try {
-        await ValidatorTest.validateSignature(message, nonce, signature);
+        await ValidatorTest.validateSignatureWithNonce(message, nonce, signature);
         assert.fail("Validator should have thrown an error");
       } catch (e: any) {
         expect(e.message).to.include("Validator: Nonce already used");
@@ -109,4 +109,27 @@ describe("Validator", () => {
       }
     })
   })
+
+  describe("validation without a nonce", () => {
+    it("should correctly validate a message", async () => {
+      expect(await ValidatorTest.isValidator(validator.address)).to.be.true;
+      const message = ethers.utils.randomBytes(60);
+      const messageHash = ethers.utils.arrayify(ethers.utils.keccak256(message));
+      const signature = await validator.signMessage(messageHash);
+      await ValidatorTest.validateSignature(message, signature);
+      // if the above does not throw, validation was successful
+    })
+    it("should correctly invalidate a message", async () => {
+      expect(await ValidatorTest.isValidator(account1.address)).to.be.false;
+      const message = ethers.utils.randomBytes(60);
+      const messageHash = ethers.utils.arrayify(ethers.utils.keccak256(message));
+      const signature = await account1.signMessage(messageHash);
+      try {
+        await ValidatorTest.validateSignature(message, signature);
+        assert.fail("Validator should have thrown an error");
+      } catch (e: any) {
+        expect(e.message).to.include("Validator: Invalid signature");
+      }
+    })
+  });
 });

@@ -35,7 +35,7 @@ contract Validator {
      * @param _nonce - a nonce for this verification
      * @param _signature - a signature (should be passed in by external source)
      */
-    function validateSignature(
+    function validateSignatureWithNonce(
         bytes memory _message,
         bytes32 _nonce,
         bytes memory _signature
@@ -46,6 +46,20 @@ contract Validator {
         
         bytes memory nonceMessage = abi.encodePacked(_message, _nonce);
         bytes32 messageHash = keccak256(nonceMessage);
+
+        require(_isSignedByValidator(messageHash, _signature), "Validator: Invalid signature");
+        return true;
+    }
+
+    /**
+     * @param _message - a message created by a list of arguments encoded with abi.encodePacked
+     * @param _signature - a signature (should be passed in by external source)
+     */
+    function validateSignature(
+        bytes memory _message,
+        bytes memory _signature
+    ) public view returns (bool) {
+        bytes32 messageHash = keccak256(_message);
 
         require(_isSignedByValidator(messageHash, _signature), "Validator: Invalid signature");
         return true;

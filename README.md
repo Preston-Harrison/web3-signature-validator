@@ -10,6 +10,9 @@ $ npm install web3-signature-validator
 $ yarn add web3-signature-validator
 ```
 
+The Validator contract exposes two methods: `validateSignature` and `validateSignatureWithNonce`.
+They do similar things, except `validateSignatureWithNonce` accepts a nonce parameter and will only validate a signature if the nonce has not been seen before.
+
 ## Contract Example
 ```
 import "web3-signature-validator/contracts/Validator.sol";
@@ -24,7 +27,7 @@ contract NeedsAValidator is Validator {
         bytes32 _nonce, 
         bytes memory signature
     ) public {
-        validateSignature(abi.encodePacked(_data1, _data2), _nonce, signature);
+        validateSignatureWithNonce(abi.encodePacked(_data1, _data2), _nonce, signature);
         // now _data1 and _data2 can be used safely, knowing that it has been signed by a validator
     }
 }
@@ -32,12 +35,13 @@ contract NeedsAValidator is Validator {
 
 ## Off Chain Example
 ```
-import signParams from 'web3-signature-validator';
+import { signParams, getRandomNonce } from 'web3-signature-validator';
 
 async function main() {
+    const nonce = getRandomNonce();
     // signer should be set to a validator on your contract
-    const { nonce, signature } = await signParams(
-        ["uint256", "address"], [1234, someAddress], signer
+    const signature = await signParams(
+        ["uint256", "address"], [1234, someAddress], signer, nonce
     );
 
     await NeedsAValidator.tryToValidate(
@@ -49,9 +53,9 @@ async function main() {
 }
 ```
 ## Pitfalls
-- When calling validateSignature, make sure all parameters (except the nonce) are encoded packed in the order they were signed on the server.
-- Do not, EVER, allow the user to pass in the pre-encoded data. E.g. in the previous example, note that _data1 and _data2 were 'encodePacked' in the contract. It is a security vulnerability to allow the user to pass in the pre-encoded value.
-- The Validator contract exposes an internal method _isSignedByValidator. This method returns a boolean, and DOES NOT REVERT if the signed data is invalid. Best to avoid using this method if you can in favor of validateSignature.
+- When calling validateSignature or validateSignatureWithNonce, make sure all parameters (except the nonce) are encoded packed in the order they were signed on the server.
+- Do not allow the user to pass in the pre-encoded data. E.g. in the previous example, note that _data1 and _data2 were 'encodePacked' in the contract. It is a security vulnerability to allow the user to pass in the pre-encoded value.
+- The Validator contract exposes an internal method _isSignedByValidator. This method returns a boolean, and DOES NOT REVERT if the signed data is invalid. Best to avoid using this method if you can in favor of validateSignature or validateSignatureWithNonce.
 
 **If you find any problems with this package, please open an issue!**  
 This package is in beta until version 1.0.0
