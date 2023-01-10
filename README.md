@@ -14,8 +14,9 @@ The Validator contract exposes two methods: `validateSignature` and `validateSig
 They do similar things, except `validateSignatureWithNonce` accepts a nonce parameter and will only validate a signature if the nonce has not been seen before.
 
 ## Contract Example
-```
+```solidity
 import "web3-signature-validator/contracts/Validator.sol";
+
 contract NeedsAValidator is Validator {
     constructor() {
         _setValidator(msg.sender, true);
@@ -34,7 +35,7 @@ contract NeedsAValidator is Validator {
 ```
 
 ## Off Chain Example
-```
+```javascript
 import { signParams, getRandomNonce } from 'web3-signature-validator';
 
 async function main() {
